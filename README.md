@@ -44,32 +44,37 @@ Full-stack Employee Attendance Management System built with **Java Spring Boot**
 
 5. **Open**: http://localhost:8080
 
-### Default accounts (created on first run)
+### Default account (created on first run)
 
-| Role    | Employee ID | Password  |
-|---------|-------------|-----------|
-| Admin   | `admin`     | `admin123` |
-| Employee| `emp001`    | `password` |
+| Role     | User ID (5 digits) | Password  |
+|----------|--------------------|-----------|
+| In-Charge| `12345`            | `password` |
 
 ## Deploy on Render
 
-1. Create a **MySQL** database on Render and note the **Internal Database URL** (or JDBC URL if provided).
+1. **Go to [Render Dashboard](https://dashboard.render.com)** and sign in (or sign up).
 
-2. Create a **Web Service**, connect your repo, and set:
+2. **Connect GitHub**: **Account Settings → Connect GitHub** and authorize the repo **arjavjain310/Employee-Attendance-System** (or use **New → Web Service** and select the repo).
+
+3. **Create a MySQL database** (for production):
+   - **New → PostgreSQL** is free; for **MySQL** use **New → Private Service** or an external MySQL (e.g. [PlanetScale](https://planetscale.com), [Railway](https://railway.app)).
+   - Or skip DB and use **H2 in-memory** for a quick demo: set env `SPRING_PROFILES_ACTIVE=dev` and do **not** set `DATABASE_URL` (data will reset on each deploy).
+
+4. **Create Web Service**:
+   - **New → Web Service**
+   - Connect repo: **https://github.com/arjavjain310/Employee-Attendance-System**
    - **Runtime**: Java
    - **Build Command**: `mvn clean package -DskipTests`
    - **Start Command**: `java -Dserver.port=$PORT -jar target/employee-attendance-system-1.0.0.jar`
 
-3. **Environment variables** (required for production):
-   - `PORT` — set automatically by Render
-   - `DATABASE_URL` — full JDBC URL, e.g. `jdbc:mysql://host:port/dbname?user=...` (if Render gives a `mysql://` URL, convert it to `jdbc:mysql://...` and add `user` and `password` as query params or use separate variables)
-   - `DB_USERNAME` — database user
-   - `DB_PASSWORD` — database password  
-   Optionally set `SPRING_PROFILES_ACTIVE=prod` to use production settings.
+5. **Environment variables** (in the Web Service **Environment** tab):
+   - `PORT` — auto-set by Render (do not override)
+   - For **MySQL**: `DATABASE_URL` (JDBC URL), `DB_USERNAME`, `DB_PASSWORD`, `SPRING_PROFILES_ACTIVE=prod`
+   - For **H2 demo**: `SPRING_PROFILES_ACTIVE=dev` only
 
-4. If your Render MySQL service only provides a single URL (e.g. `mysql://user:pass@host:port/db`), set:
-   - `DATABASE_URL=jdbc:mysql://host:port/db?user=user&password=pass&useSSL=false&serverTimezone=UTC`
-   (replace host, port, db, user, pass with values from the Render dashboard.)
+6. Click **Create Web Service**. Render will build and deploy; your app URL will be like `https://employee-attendance-system-xxxx.onrender.com`.
+
+**Quick deploy (no database):** Set only `SPRING_PROFILES_ACTIVE=dev`. The app will use in-memory H2; data resets on restart. Default login: User ID `12345`, password `password`.
 
 ## Project Structure
 
