@@ -1,0 +1,25 @@
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+.mvn/timing.properties
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.class
+*.log
+*.jar
+*.war
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Application
+application-local.properties
+*.env

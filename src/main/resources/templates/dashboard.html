@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Attendance System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --bg-card-hover: #334155;
+            --primary: #3b82f6;
+            --primary-glow: rgba(59, 130, 246, 0.4);
+            --success: #22c55e;
+            --success-glow: rgba(34, 197, 94, 0.3);
+            --danger: #ef4444;
+            --danger-glow: rgba(239, 68, 68, 0.3);
+            --warning: #f59e0b;
+            --warning-glow: rgba(245, 158, 11, 0.3);
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border: #334155;
+        }
+        body {
+            background: var(--bg-dark);
+            color: var(--text);
+            min-height: 100vh;
+        }
+        .navbar {
+            background: linear-gradient(135deg, #0c1222 0%, #1e293b 100%) !important;
+            border-bottom: 1px solid var(--border);
+        }
+        .navbar-brand, .nav-link { color: var(--text) !important; }
+        .nav-link:hover { color: var(--primary) !important; }
+        .nav-link.text-white-50 { color: var(--text-muted) !important; }
+
+        .dashboard-title {
+            color: var(--text);
+            font-weight: 700;
+        }
+        .dashboard-title .date-badge {
+            font-size: 0.85rem;
+            font-weight: 400;
+            color: var(--text-muted);
+            background: var(--bg-card);
+            padding: 0.35rem 0.75rem;
+            border-radius: 9999px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1.25rem;
+            height: 100%;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        .stat-card:hover {
+            transform: translateY(-4px);
+            background: var(--bg-card-hover);
+        }
+        .stat-card.total:hover { box-shadow: 0 8px 30px var(--primary-glow); }
+        .stat-card.present:hover { box-shadow: 0 8px 30px var(--success-glow); }
+        .stat-card.absent:hover { box-shadow: 0 8px 30px var(--danger-glow); }
+        .stat-card.pending:hover { box-shadow: 0 8px 30px var(--warning-glow); }
+
+        .stat-card .icon-wrap {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            transition: transform 0.2s ease;
+        }
+        .stat-card:hover .icon-wrap { transform: scale(1.1); }
+        .stat-card.total .icon-wrap { background: rgba(59, 130, 246, 0.2); color: var(--primary); }
+        .stat-card.present .icon-wrap { background: rgba(34, 197, 94, 0.2); color: var(--success); }
+        .stat-card.absent .icon-wrap { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+        .stat-card.pending .icon-wrap { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
+
+        .stat-card .label { color: var(--text-muted); font-size: 0.875rem; }
+        .stat-card .value { font-size: 1.75rem; font-weight: 700; }
+        .stat-card.total .value { color: var(--primary); }
+        .stat-card.present .value { color: var(--success); }
+        .stat-card.absent .value { color: var(--danger); }
+        .stat-card.pending .value { color: var(--warning); }
+
+        .chart-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            overflow: hidden;
+        }
+        .chart-card .card-header {
+            background: transparent;
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 1.25rem;
+            color: var(--text);
+        }
+        .chart-card .card-body { padding: 1.25rem; }
+        .chart-container { position: relative; height: 300px; }
+
+        .quick-actions .btn-action {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: 0.75rem;
+            padding: 0.75rem 1.25rem;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .quick-actions .btn-action:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+        .alert-success { background: rgba(34, 197, 94, 0.15); border-color: var(--success); color: #86efac; }
+        .alert-danger { background: rgba(239, 68, 68, 0.15); border-color: var(--danger); color: #fca5a5; }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-dark navbar-expand-lg mb-4">
+        <div class="container">
+            <a class="navbar-brand" th:href="@{/dashboard}"><i class="bi bi-calendar-check me-2"></i>Attendance System</a>
+            <div class="navbar-nav ms-auto">
+                <span class="nav-link text-white-50 me-2" th:text="${inCharge.name} + ' (' + ${inCharge.userId} + ')'">User</span>
+                <a class="nav-link" th:href="@{/employees}">Mark Attendance</a>
+                <a class="nav-link" th:href="@{/reports}">Reports</a>
+                <a class="nav-link" th:href="@{/employees/manage}">Manage Employees</a>
+                <a class="nav-link" th:href="@{/logout}">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h4 class="dashboard-title mb-4">
+            Dashboard
+            <span class="date-badge ms-2" th:text="${#temporals.format(today, 'dd MMM yyyy')}">—</span>
+        </h4>
+
+        <div th:if="${success}" class="alert alert-success alert-dismissible" th:text="${success}"></div>
+        <div th:if="${error}" class="alert alert-danger alert-dismissible" th:text="${error}"></div>
+
+        <div class="row g-4 mb-4">
+            <div class="col-md-3">
+                <a th:href="@{/employees/manage}" class="stat-card total">
+                    <div class="d-flex align-items-center">
+                        <div class="icon-wrap me-3"><i class="bi bi-people"></i></div>
+                        <div>
+                            <p class="label mb-0">Total Employees</p>
+                            <div class="value" th:text="${totalEmployees}">0</div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-3">
+                <a th:href="@{/employees}" class="stat-card present">
+                    <div class="d-flex align-items-center">
+                        <div class="icon-wrap me-3"><i class="bi bi-check-circle"></i></div>
+                        <div>
+                            <p class="label mb-0">Present Today</p>
+                            <div class="value" th:text="${presentToday}">0</div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-3">
+                <a th:href="@{/employees}" class="stat-card absent">
+                    <div class="d-flex align-items-center">
+                        <div class="icon-wrap me-3"><i class="bi bi-x-circle"></i></div>
+                        <div>
+                            <p class="label mb-0">Absent Today</p>
+                            <div class="value" th:text="${absentToday}">0</div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-3">
+                <a th:href="@{/employees}" class="stat-card pending">
+                    <div class="d-flex align-items-center">
+                        <div class="icon-wrap me-3"><i class="bi bi-dash-circle"></i></div>
+                        <div>
+                            <p class="label mb-0">Not Marked</p>
+                            <div class="value" th:text="${notMarked}">0</div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <div class="chart-card card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-graph-up me-2"></i>Monthly Attendance Trend (Last 6 Months)</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="monthlyChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="quick-actions d-flex flex-wrap gap-2">
+            <a th:href="@{/employees}" class="btn-action"><i class="bi bi-pencil-square"></i> Mark Attendance</a>
+            <a th:href="@{/reports}" class="btn-action"><i class="bi bi-file-earmark-text"></i> Reports</a>
+            <a th:href="@{/employees/manage}" class="btn-action"><i class="bi bi-person-plus"></i> Manage Employees</a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script th:inline="javascript">
+        const labels = JSON.parse(/*[[${monthlyLabelsJson}]]*/ '[]');
+        const presentData = JSON.parse(/*[[${monthlyPresentJson}]]*/ '[]');
+        const absentData = JSON.parse(/*[[${monthlyAbsentJson}]]*/ '[]');
+        const ctx = document.getElementById('monthlyChart').getContext('2d');
+
+        Chart.defaults.color = '#94a3b8';
+        Chart.defaults.borderColor = '#334155';
+        Chart.defaults.font.family = "'Segoe UI', system-ui, sans-serif";
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    { label: 'Present', data: presentData, backgroundColor: 'rgba(34, 197, 94, 0.7)', borderColor: '#22c55e', borderWidth: 1, hoverBackgroundColor: 'rgba(34, 197, 94, 0.9)' },
+                    { label: 'Absent', data: absentData, backgroundColor: 'rgba(239, 68, 68, 0.7)', borderColor: '#ef4444', borderWidth: 1, hoverBackgroundColor: 'rgba(239, 68, 68, 0.9)' }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { intersect: false, mode: 'index' },
+                plugins: {
+                    legend: { position: 'top', labels: { usePointStyle: true, padding: 20 } },
+                    tooltip: { backgroundColor: '#1e293b', titleColor: '#f1f5f9', bodyColor: '#94a3b8', borderColor: '#334155', borderWidth: 1 }
+                },
+                scales: {
+                    x: { grid: { color: 'rgba(51, 65, 85, 0.5)' } },
+                    y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: 'rgba(51, 65, 85, 0.5)' } }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
