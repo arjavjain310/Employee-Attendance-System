@@ -103,7 +103,3 @@ src/main/resources/
 | `/admin/dashboard`  | Admin    | Today’s attendance    |
 | `/admin/employees`  | Admin    | All employees         |
 | `/admin/attendance` | Admin    | Attendance by date    |
-
-## License
-
-MIT
