@@ -12,8 +12,7 @@ RUN mvn clean package -DskipTests -B
 FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 
-COPY --from=build /app/target/employee-attendance-system-1.0.0.jar app.jar
-
+COPY --from=build /app/target/employee-attendance-system-1.0.0.jar /app/app.jar
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
