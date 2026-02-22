@@ -1,6 +1,6 @@
 # Render Blueprint - Employee Attendance Management System
-# https://render.com/docs/blueprint-spec
-# Add DATABASE_URL (JDBC), DB_USERNAME, DB_PASSWORD in Render Dashboard if not using fromDatabase.
+# One-click deploy: New → Blueprint → connect this repo
+# Uses H2 in-memory (dev profile) - no database setup needed. Data resets on deploy.
 
 services:
   - type: web
@@ -15,22 +15,4 @@ services:
       - key: PORT
         generateValue: true
       - key: SPRING_PROFILES_ACTIVE
-        value: prod
-      - key: DATABASE_URL
-        fromDatabase:
-          name: attendance-db
-          property: connectionString
-      - key: DB_USERNAME
-        fromDatabase:
-          name: attendance-db
-          property: user
-      - key: DB_PASSWORD
-        fromDatabase:
-          name: attendance-db
-          property: password
-
-databases:
-  - name: attendance-db
-    plan: free
-    databaseName: attendance_db
-    user: attendance_user
+        value: dev
